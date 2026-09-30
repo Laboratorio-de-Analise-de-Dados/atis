@@ -1,8 +1,10 @@
 """Regras de dinâmicas entre entidades e função de recompensa"""
 
 from abc import ABC, abstractmethod
+
+from .entities import Cytokine, Pathogen
 from .graph import ImmuneGraph
-from .entities import Pathogen, Cytokine
+
 
 class Dynamics(ABC):
     @abstractmethod
@@ -27,14 +29,15 @@ class SimpleDynamics(Dynamics):
 
 class RewardFunction(ABC):
     @abstractmethod
-    def compute(self, before: ImmuneGraph, after: ImmuneGraph) -> float: ...
+    def compute(self, before: ImmuneGraph, after: ImmuneGraph) -> dict[str, float]: ...
 
 class PathogenInflammationReward(RewardFunction):
     """R_t = (P_{t-1} - P_t - lambda (I_t - I_{t-1}))"""
     def __init__(self, lam=0.5):
         self.lam = lam
 
-    def compute(self, before, after) -> float:
+    def compute(self, before, after) -> dict[str, float]:
         dP = before.total_signal(Pathogen) - after.total_signal(Pathogen)
         dI = after.total_signal(Cytokine) - before.total_signal(Cytokine)
-        return dP - self.lam * dI
+        team = dP = self.lam * dI
+        return {c.id: team for c in after.cells()}

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import Enum, IntEnum
 from typing import ClassVar
 
+
 class NodeType(Enum):
     PAMP = "pamp"
     PATHOGEN = "pathogen"
@@ -86,7 +87,13 @@ class Macrophage(Cell):
     node_type = NodeType.MACROPHAGE
 
 @dataclass
+class NeighborView:
+    """O que a célula enxerga do vizinho"""
+    node_type: NodeType
+    signal: float
+
+@dataclass
 class Observation:
     """O que uma unidade de célula enxerga: o_i = f(x_i, N_i)"""
-    own: dict
-    neighbors: dict # id -> signal
+    own:dict
+    neighbors: dict 

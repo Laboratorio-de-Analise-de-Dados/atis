@@ -1,8 +1,21 @@
 """Grafo imunológico que encapsula o NetworkX"""
 
 import copy
+
 import networkx as nx
-from .entities import (Entity, Cell, EdgeType, Observation, PAMP, Pathogen, Cytokine, Macrophage)
+
+from .entities import (
+    PAMP,
+    Cell,
+    Cytokine,
+    EdgeType,
+    Entity,
+    Macrophage,
+    NeighborView,
+    Observation,
+    Pathogen,
+)
+
 
 class ImmuneGraph:
     def __init__(self):
@@ -17,6 +30,12 @@ class ImmuneGraph:
     def entity(self, id: str) -> Entity:
         return self._g.nodes[id]["entity"]
 
+    def cell(self, id:str) -> Cell:
+        entity = self.entity(id)
+        if not isinstance(entity, Cell):
+            raise TypeError(f"'{id}' não é uma célula (é {type(entity).__name__})")
+        return entity
+    
     def entities(self, kind: type = Entity) -> list:
         return [d["entity"] for _, d in self._g.nodes(data=True)
                 if isinstance(d["entity"], kind)]
@@ -31,7 +50,8 @@ class ImmuneGraph:
         nbrs = set(self._g.predecessors(cell_id)) | set(self._g.successors(cell_id))
         return Observation(
             own=self.entity(cell_id).state(),
-            neighbors={n: self.entity(n).signal() for n in nbrs}
+            neighbors={n: NeighborView(self.entity(n).node_type, self.entity(n).signal()) 
+                                       for n in nbrs}
         )
 
     def snapshot(self) -> "ImmuneGraph":
