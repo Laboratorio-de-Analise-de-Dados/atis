@@ -1,4 +1,5 @@
 import pytest
+
 from immune_rl.dynamics import PathogenInflammationReward, SimpleDynamics
 from immune_rl.entities import Action, Cytokine, Pathogen
 from immune_rl.environment import ImmuneEnvironment
